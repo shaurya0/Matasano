@@ -1,0 +1,26 @@
+{
+    "folders":
+    [
+        {
+            "path": "src",
+            "file_include_patterns": ["*.hs"]
+        },
+        {
+            "path": "./",
+            "file_include_patterns": ["*.cabal"]
+        },
+        {
+            "path": "data",
+            "file_include_patterns": ["*.txt"]
+        }
+
+    ],
+    "build_systems":
+    [
+        {
+            "cmd": ["cabal", "build"],
+            "working_dir": "${project_path}",
+            "name":"haskell_project_build"
+        }
+    ]
+}
