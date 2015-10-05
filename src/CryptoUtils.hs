@@ -8,6 +8,7 @@ module CryptoUtils
     allBytes,
     newLine,
     scoreString,
+    xorByteStrings,
     xorCipherAllBytes,
     xorCipherMaxScore,
     detectCipher,
@@ -66,6 +67,9 @@ xorCipherAllBytes :: BS.ByteString -> [BS.ByteString]
 xorCipherAllBytes bytes = map (\b -> BS.map (xor b) bytes) allBytes
 
 
+xorByteStrings :: BS.ByteString -> BS.ByteString -> [Word8]
+xorByteStrings bytes1 bytes2 = map (uncurry xor) $ BS.zip bytes1 bytes2
+
 xorCipherMaxScore :: BS.ByteString -> (Word8, Double, BS.ByteString)
 xorCipherMaxScore bytes =
     let xorStrings = xorCipherAllBytes bytes
@@ -89,12 +93,12 @@ repeatingKeyXor key str
     where
         len = BS.length key
         (start, rest) = BS.splitAt len str
-        encryptStr = BS.pack $ map (uncurry xor) $ BS.zip start key
+        encryptStr = BS.pack $ xorByteStrings start key
 
 
 hammingDistance :: BS.ByteString -> BS.ByteString -> Int
 hammingDistance str1 str2 =
-    let xorStr = map (uncurry xor) $ BS.zip str1 str2
+    let xorStr = xorByteStrings str1 str2
     in sum $ map popCount xorStr
 
 keySizeValues :: [Int]
