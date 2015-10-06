@@ -118,7 +118,7 @@ keySizeEditDistance keySize bytes =
     in (keySize, score)
 
 
-blockifyBytestring :: Int -> BS.ByteString -> [BS.ByteString]
+blockifyBytestring ::  Int -> BS.ByteString -> [BS.ByteString]
 blockifyBytestring chunkSize bytes
     | BS.length bytes > 0 = start : blockifyBytestring chunkSize rest
     | otherwise = []

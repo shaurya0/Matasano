@@ -38,9 +38,17 @@ yellowSubmarine :: BS.ByteString
 yellowSubmarine = "YELLOW SUBMARINE"
 
 
+cbcEncryptHelper :: Int -> BS.ByteString -> BS.ByteString -> [BB.Builder]
+cbcEncryptHelper chunkSize cipherBlock plainText
+    | BS.length plainText > 0 = BB.fromByteString xorBlock : cbcEncryptHelper chunkSize xorBlock rest
+    | otherwise = []
+    where
+        (start, rest) = BS.splitAt chunkSize plainText
+        xorBlock = BS.pack $ xorByteStrings start cipherBlock
+
 cbcEncrypt :: BS.ByteString -> BS.ByteString -> BS.ByteString -> BS.ByteString
 cbcEncrypt initializationVector keyString plainText =
     let cipher = initAES keyString
         cipherTextECB = encryptECB cipher plainText
-        cipherBlocks = blockifyBytestring 16 cipherTextECB
-    in error "todo"
+        result = mconcat $ cbcEncryptHelper 16 initializationVector cipherTextECB
+    in BB.toByteString result
