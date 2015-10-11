@@ -31,24 +31,28 @@ challenge10 :: FilePath -> BS.ByteString -> IO BS.ByteString
 challenge10 filePath initializationVector = do
     contents <- BS.readFile filePath
     let bytes = BS64.decodeLenient contents
+    let initializationVector = BS.pack (take 16 $ repeat 0)
+    let cipherText = cbcEncrypt initializationVector yellowSubmarine bytes
+    return cipherText
 
-    error "todo"
 
 yellowSubmarine :: BS.ByteString
 yellowSubmarine = "YELLOW SUBMARINE"
 
 
-cbcEncryptHelper :: Int -> BS.ByteString -> BS.ByteString -> [BB.Builder]
-cbcEncryptHelper chunkSize cipherBlock plainText
-    | BS.length plainText > 0 = BB.fromByteString xorBlock : cbcEncryptHelper chunkSize xorBlock rest
+cbcEncryptHelper :: AES -> Int -> BS.ByteString -> BS.ByteString -> [BB.Builder]
+cbcEncryptHelper cipher blockSize cipherBlock plainText
+    | BS.length plainText > 0 = BB.fromByteString aesBlock : cbcEncryptHelper cipher blockSize aesBlock rest
     | otherwise = []
     where
-        (start, rest) = BS.splitAt chunkSize plainText
+        (start, rest) = BS.splitAt blockSize plainText
         xorBlock = BS.pack $ xorByteStrings start cipherBlock
+        aesBlock = encryptECB cipher xorBlock
+
 
 cbcEncrypt :: BS.ByteString -> BS.ByteString -> BS.ByteString -> BS.ByteString
 cbcEncrypt initializationVector keyString plainText =
     let cipher = initAES keyString
-        cipherTextECB = encryptECB cipher plainText
-        result = mconcat $ cbcEncryptHelper 16 initializationVector cipherTextECB
+        blockSize = BS.length keyString
+        result = mconcat $ cbcEncryptHelper cipher blockSize initializationVector plainText
     in BB.toByteString result
