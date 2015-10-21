@@ -80,7 +80,7 @@ xorCipherMaxScore bytes =
 
 detectCipher :: [BS.ByteString] -> [((Word8, Double, BS.ByteString), Int)]
 detectCipher fileLines =
-    let idx = [1.. length fileLines]
+    let idx = [1..]
         scoreIdx = zip (map xorCipherMaxScore fileLines) idx
     in filter (\(a, b) -> sel2 a > 0) scoreIdx
 

@@ -76,7 +76,7 @@ challenge8 filePath = do
     contents <- BS.readFile filePath
     let fileLines = BS.split newLine contents
     let linesAsBytes = map bs16Decode fileLines
-    let scores = zip [1.. length fileLines] $ map challenge8Helper linesAsBytes
+    let scores = zip [1..] $ map challenge8Helper linesAsBytes
     return $ fst $ maximumBy (comparing snd) scores
 
 
