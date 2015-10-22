@@ -21,6 +21,8 @@ import Data.Monoid
 import Crypto.Random.DRBG
 import System.Random
 import Control.Monad
+import qualified Data.Attoparsec.ByteString.Char8 as P
+import qualified Data.ByteString.Internal as BSI (c2w, w2c)
 import qualified Data.Map as Map
 
 -- assumption on lengths
@@ -174,3 +176,22 @@ genRandomBytes n = do
     let Right (randomBytes, newGen) = genBytes n gen
     return (randomBytes, newGen)
 
+
+data Value = IValue Int | StrValue BS.ByteString deriving (Eq, Ord, Show)
+data KeyValue = KeyValue BS.ByteString Value deriving (Eq, Ord, Show)
+
+
+keyValueParser :: P.Parser KeyValue
+keyValueParser = do
+    key <- P.takeTill (== '=')
+    P.take 1
+    value <- P.takeWhile (/= '&')
+    return (KeyValue key (StrValue value))
+
+
+keyValuesParser :: P.Parser [KeyValue]
+keyValuesParser = do
+    P.sepBy keyValueParser (P.char '&')
+
+profileFor :: BS.ByteString -> [KeyValue]
+profileFor email = error "todo"
